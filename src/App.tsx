@@ -163,7 +163,18 @@ export function App() {
       setDriverRequest(null);
       setCurrentScreen('Completion');
       
-      addNotification('SOS Resolved', 'Emergency assistance has been completed successfully.');
+      // Driver notification
+      addNotification('✅ SOS Resolved', 'Emergency assistance has been completed successfully. Please rate your experience.');
+
+      // Garage notification from mechanic
+      addNotification(
+        '🔧 Job Completed by Mechanic',
+        `${driverRequest.mechanic?.name} has submitted the service report for ${driverRequest.driver.name}'s ${driverRequest.driver.vehicle.model}. Problem: ${driverRequest.problemType}. Job ticket closed.`
+      );
+
+      // Garage notification from driver side (queued — will show after review)
+      // This is stored so handleSubmitReview can fire it
+      setLastCompletedRequest(completedJob);
 
     } else if (status === 'towing') {
       // Tow requested — keep the request alive, notify both driver and garage
@@ -237,6 +248,15 @@ export function App() {
 
     setLastCompletedRequest(null);
     setCurrentScreen(isRegisteredMode ? 'RegisteredDashboard' : 'Home');
+
+    // Garage notification: driver submitted review
+    if (lastCompletedRequest) {
+      const stars = '⭐'.repeat(rating);
+      addNotification(
+        '⭐ Driver Review Received',
+        `${lastCompletedRequest.driver.name} rated the service ${rating}/5 ${stars}. "${review || 'No written review.'}" — Vehicle: ${lastCompletedRequest.driver.vehicle.model}`
+      );
+    }
   };
 
   // 8. Driver Registers Account (Save History)

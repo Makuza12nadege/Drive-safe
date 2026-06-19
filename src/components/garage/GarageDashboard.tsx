@@ -33,6 +33,7 @@ export function GarageDashboard({
   const [mechSkills, setMechSkills] = useState('Diagnostics, Flat tire, Engine');
   const [workingHours, setWorkingHours] = useState('08:00 AM – 08:00 PM');
   const [isEditingHours, setIsEditingHours] = useState(false);
+  const [towDispatched, setTowDispatched] = useState(false);
 
   const garageMechanics = state.mechanics.filter((m) => m.garageId === activeGarage.id);
   const activeReq =
@@ -102,8 +103,10 @@ export function GarageDashboard({
           >
             <Icon size={13} className="mb-0.5" />
             {label}
-            {key === 'requests' && activeReq && activeReq.status === 'requested' && (
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+            {key === 'requests' && activeReq && (activeReq.status === 'requested' || activeReq.status === 'towing') && (
+              <span className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full animate-ping ${
+                activeReq.status === 'towing' ? 'bg-amber-400' : 'bg-red-500'
+              }`} />
             )}
           </button>
         ))}
@@ -225,9 +228,10 @@ export function GarageDashboard({
 
                 {/* Towing alert for garage */}
                 {activeReq.status === 'towing' && (
-                  <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                  <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-3 space-y-2.5">
+                    {/* Header */}
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
                         <svg viewBox="0 0 24 24" className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M1 3h15v13H1z" strokeLinejoin="round"/>
                           <path d="M16 8h4l3 3v5h-7V8z" strokeLinejoin="round"/>
@@ -236,21 +240,48 @@ export function GarageDashboard({
                         </svg>
                       </div>
                       <div>
-                        <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wide">⚠ Tow Required</p>
+                        <p className="text-[10px] font-extrabold text-white">🚛 Tow Required</p>
                         <p className="text-[9px] text-slate-400 leading-snug">
-                          <span className="font-bold text-white">{activeReq.mechanic?.name}</span> reports vehicle cannot be repaired on-site.
+                          <span className="font-bold text-orange-400">{activeReq.mechanic?.name}</span> says vehicle cannot be fixed on-site.
                         </p>
                       </div>
                     </div>
-                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">
-                      <p className="text-[9px] text-amber-200 font-semibold leading-relaxed">
-                        Driver: <span className="font-bold text-white">{activeReq.driver.name}</span> · {activeReq.driver.vehicle.model} ({activeReq.driver.vehicle.plate})<br/>
-                        Location: <span className="text-amber-300">Kigali, Kiyovu · KN 3 Rd</span>
+
+                    {/* Job details */}
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 space-y-0.5">
+                      <p className="text-[9px] text-slate-300 font-semibold">
+                        Driver: <span className="text-white font-bold">{activeReq.driver.name}</span>
+                      </p>
+                      <p className="text-[9px] text-slate-300 font-semibold">
+                        Vehicle: <span className="text-white font-bold">{activeReq.driver.vehicle.model} · {activeReq.driver.vehicle.plate}</span>
+                      </p>
+                      <p className="text-[9px] text-slate-300 font-semibold">
+                        Location: <span className="text-amber-400 font-bold">Kigali, Kiyovu · KN 3 Rd</span>
                       </p>
                     </div>
-                    <p className="text-[8px] text-amber-400 font-black uppercase tracking-wider animate-pulse">
-                      ▶ Dispatch tow truck from yard immediately
-                    </p>
+
+                    {/* Action */}
+                    {!towDispatched ? (
+                      <button
+                        onClick={() => setTowDispatched(true)}
+                        className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M1 3h15v13H1z" strokeLinejoin="round"/>
+                          <path d="M16 8h4l3 3v5h-7V8z" strokeLinejoin="round"/>
+                          <circle cx="5.5" cy="18.5" r="2.5"/>
+                          <circle cx="18.5" cy="18.5" r="2.5"/>
+                        </svg>
+                        Confirm Tow Dispatch
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                        <p className="text-[9px] text-emerald-300 font-bold">
+                          ✓ Tow truck dispatched — En route to driver location
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -386,28 +417,42 @@ export function GarageDashboard({
             )}
 
             <div className="space-y-2">
-              {garageMechanics.map((mech) => (
-                <div key={mech.id} className="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex items-center gap-3">
-                  <img src={mech.avatar} alt={mech.name} className="w-11 h-11 rounded-xl object-cover shrink-0 border border-slate-800" />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-extrabold text-xs truncate">{mech.name}</h4>
-                    <p className="text-[9px] text-slate-400 font-semibold">{mech.phone}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[8px] text-amber-500 font-bold flex items-center gap-0.5">
-                        <Star size={8} className="fill-amber-500" /> {mech.rating}
-                      </span>
-                      <span className="text-[8px] text-slate-500">· {mech.reviews} jobs</span>
-                    </div>
-                  </div>
-                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full border shrink-0 ${
-                    mech.status === 'available'
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                      : 'bg-slate-800 text-slate-500 border-slate-700'
+              {garageMechanics.map((mech) => {
+                const live = state.mechanics.find(m => m.id === mech.id) ?? mech;
+                return (
+                  <div key={mech.id} className={`bg-slate-950 border rounded-2xl p-3 flex items-center gap-3 ${
+                    live.status === 'on_duty' ? 'border-orange-500/30' : 'border-slate-800'
                   }`}>
-                    {mech.status}
-                  </span>
-                </div>
-              ))}
+                    <div className="relative shrink-0">
+                      <img src={mech.avatar} alt={mech.name} className="w-11 h-11 rounded-xl object-cover border border-slate-800" />
+                      <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-slate-950 ${
+                        live.status === 'available' ? 'bg-emerald-400 animate-pulse'
+                        : live.status === 'on_duty' ? 'bg-orange-400 animate-pulse'
+                        : 'bg-slate-500'
+                      }`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-extrabold text-xs truncate">{mech.name}</h4>
+                      <p className="text-[9px] text-slate-400 font-semibold">{mech.phone}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[8px] text-amber-500 font-bold flex items-center gap-0.5">
+                          <Star size={8} className="fill-amber-500" /> {mech.rating}
+                        </span>
+                        <span className="text-[8px] text-slate-500">· {mech.reviews} jobs</span>
+                      </div>
+                    </div>
+                    <span className={`text-[8px] font-black uppercase px-2 py-1 rounded-full border shrink-0 ${
+                      live.status === 'available'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                        : live.status === 'on_duty'
+                        ? 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                        : 'bg-slate-800 text-slate-500 border-slate-700'
+                    }`}>
+                      {live.status === 'available' ? 'Available' : live.status === 'on_duty' ? 'On Duty' : 'Offline'}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
