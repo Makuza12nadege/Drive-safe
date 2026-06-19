@@ -417,6 +417,12 @@ export function DriverApp({
             {/* Header overlay */}
             <div className="absolute top-0 inset-x-0 bg-gradient-to-b from-slate-950 to-transparent p-5 pt-8 z-20 flex justify-between items-center">
               <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => onNavigate('Problems')}
+                  className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-white hover:bg-slate-700 transition-colors"
+                >
+                  <ArrowLeft size={15} />
+                </button>
                 <div className="w-7 h-7 rounded-lg bg-orange-500 flex items-center justify-center text-white animate-spin" style={{ animationDuration: '4s' }}>
                   <Wrench size={14} />
                 </div>
@@ -679,6 +685,13 @@ export function DriverApp({
               {/* Floating Header info overlay */}
               <div className="absolute top-4 inset-x-4 bg-slate-900/90 border border-slate-800 p-2.5 rounded-2xl text-white flex justify-between items-center shadow-lg backdrop-blur-sm">
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => onNavigate('Garages')}
+                    className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                    title="Back to garages"
+                  >
+                    <ArrowLeft size={14} />
+                  </button>
                   <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500">
                     <Navigation size={15} className="rotate-45" />
                   </div>
@@ -847,6 +860,12 @@ export function DriverApp({
           <div className="h-full bg-white flex flex-col justify-between">
             {/* Header */}
             <div className="px-5 pt-8 pb-4 flex justify-between items-center border-b border-slate-50">
+              <button
+                onClick={() => onNavigate(isRegisteredMode ? 'RegisteredDashboard' : 'Home')}
+                className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-navy-800 hover:bg-slate-100"
+              >
+                <ArrowLeft size={16} />
+              </button>
               <h3 className="font-extrabold text-navy-900 text-base">Service Completed</h3>
               <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
                 <CheckCircle2 size={14} />
@@ -930,7 +949,16 @@ export function DriverApp({
             {/* Header */}
             <div className="px-5 pt-8 pb-4 bg-navy-900 text-white flex justify-between items-center rounded-b-3xl shadow-lg relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-tr from-navy-800 to-transparent opacity-60"></div>
-              
+
+              {/* Back button */}
+              <button
+                onClick={() => onNavigate('Home')}
+                className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 relative z-10"
+                title="Back to Home"
+              >
+                <ArrowLeft size={14} />
+              </button>
+
               <div className="flex items-center gap-3 relative z-10">
                 <img src={state.activeDriver.avatar} alt="Driver" className="w-12 h-12 rounded-2xl object-cover border border-white/20 shadow-md" />
                 <div>
@@ -942,7 +970,7 @@ export function DriverApp({
                 </div>
               </div>
 
-              {/* Logo in top right */}
+              {/* Logo + Logout */}
               <div className="flex items-center gap-2 relative z-10">
                 <img src={logo} alt="Drive Safe" className="w-7 h-7 object-contain opacity-80" />
                 <button
@@ -951,7 +979,7 @@ export function DriverApp({
                     onNavigate('Home');
                   }}
                   className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10"
-                  title="Log Out / Back to Guest Mode"
+                  title="Log Out"
                 >
                   <LogOut size={14} />
                 </button>

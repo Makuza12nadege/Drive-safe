@@ -82,7 +82,7 @@ export const initialMechanics: Mechanic[] = [
     services: ['Flat tire', 'Brakes', 'Suspension'],
     about: 'Quick emergency responder. Expert in tire fittings, brake servicing, and minor engine start problems.',
     garageId: 'g1',
-    status: 'available',
+    status: 'on_duty',           // already handling a job
     lat: -1.9430,
     lng: 30.0600
   },
@@ -114,7 +114,7 @@ export const initialMechanics: Mechanic[] = [
     services: ['Towing', 'Accident assistance', 'Out of fuel', 'Flat tire'],
     about: 'Heavy-duty roadside recovery specialist with 5 years experience driving towing trucks and handling highway rescue.',
     garageId: 'g2',
-    status: 'available',
+    status: 'on_duty',           // currently on a towing job
     lat: -1.9392,
     lng: 30.0449
   },
@@ -144,7 +144,7 @@ export const initialMechanics: Mechanic[] = [
     services: ['Towing', 'Accident assistance', 'Flat tire'],
     about: 'Towing expert and accident response coordinator based in Nyabugogo hub.',
     garageId: 'g2',
-    status: 'available',
+    status: 'offline',           // off shift
     lat: -1.9395,
     lng: 30.0455
   },
@@ -161,7 +161,7 @@ export const initialMechanics: Mechanic[] = [
     services: ['Diagnostics', 'Engine repair', 'AC Inspection'],
     about: 'Experienced mechanical technician with a focus on electronic diagnostics and modern European cars.',
     garageId: 'g3',
-    status: 'available',
+    status: 'on_duty',           // currently diagnosing a car
     lat: -1.9682,
     lng: 30.0784
   },
@@ -191,7 +191,7 @@ export const initialMechanics: Mechanic[] = [
     services: ['Need inspection', 'Engine Issue', 'Battery problem'],
     about: 'Specialist in full vehicle inspection and pre-purchase checks. Gikondo area coverage.',
     garageId: 'g3',
-    status: 'available',
+    status: 'offline',           // off shift today
     lat: -1.9686,
     lng: 30.0790
   }
