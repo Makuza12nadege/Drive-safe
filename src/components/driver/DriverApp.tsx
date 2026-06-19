@@ -658,6 +658,7 @@ export function DriverApp({
           { key: 'en_route', label: 'Mechanic on the way' },
           { key: 'arrived', label: 'Mechanic arrived' },
           { key: 'diagnosing', label: 'Vehicle diagnosed' },
+          { key: 'towing', label: 'Tow truck dispatched' },
           { key: 'repaired', label: 'Service completed' }
         ];
 
@@ -760,6 +761,36 @@ export function DriverApp({
                     <p className="text-[10px] text-slate-400">Garage is assigning the best nearby professional.</p>
                   </div>
                 </div>
+              )}
+
+              {/* Towing Alert Banner */}
+              {activeReq.status === 'towing' && (
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-amber-500/10 border border-amber-500/50 rounded-3xl p-4 flex flex-col gap-2 shadow-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                      <svg viewBox="0 0 24 24" className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M1 3h15v13H1z" strokeLinejoin="round"/>
+                        <path d="M16 8h4l3 3v5h-7V8z" strokeLinejoin="round"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-extrabold text-amber-300">Tow Truck on the Way!</p>
+                      <p className="text-[10px] text-amber-200/70 font-medium leading-snug">
+                        Your vehicle cannot be repaired on-site. A tow truck from <span className="font-bold text-amber-300">{activeReq.garage?.name}</span> has been dispatched to tow your car to the workshop.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                    <p className="text-[9px] text-amber-200 font-semibold">Please stay with your vehicle. The mechanic will wait with you until the tow truck arrives.</p>
+                  </div>
+                </motion.div>
               )}
 
               {/* Progress Timeline */}

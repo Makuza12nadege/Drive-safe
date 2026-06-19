@@ -234,10 +234,19 @@ export function MechanicDashboard({
                         className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs uppercase rounded-2xl flex items-center justify-center gap-1.5 transition-all">
                         <CheckCircle2 size={14} /> Complete
                       </button>
-                      <button onClick={() => onUpdateStatus('completed', 'Towing required.', 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')}
+                      <button onClick={() => onUpdateStatus('towing', 'Vehicle cannot be repaired on site. Tow truck required.')}
                         className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-red-400 font-extrabold text-xs uppercase rounded-2xl border border-slate-800 flex items-center justify-center gap-1 transition-all">
                         <ShieldAlert size={14} /> Tow
                       </button>
+                    </div>
+                  )}
+                  {activeReq.status === 'towing' && (
+                    <div className="w-full bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-center gap-2.5">
+                      <ShieldAlert size={18} className="text-amber-400 shrink-0" />
+                      <div>
+                        <p className="text-[10px] font-extrabold text-amber-300">Tow Truck Dispatched</p>
+                        <p className="text-[8px] text-slate-400 leading-snug">Garage notified. Stay with the driver until tow truck arrives.</p>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -213,7 +213,44 @@ export function GarageDashboard({
                         <p className="text-[10px] font-bold text-white">{activeReq.mechanic.name}</p>
                       </div>
                     </div>
-                    <span className="text-[8px] bg-orange-500/10 text-orange-400 border border-orange-500/20 font-black px-2 py-0.5 rounded-full uppercase">En Route</span>
+                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase border ${
+                      activeReq.status === 'towing'
+                        ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                        : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                    }`}>
+                      {activeReq.status === 'towing' ? '🚛 Towing' : 'En Route'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Towing alert for garage */}
+                {activeReq.status === 'towing' && (
+                  <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M1 3h15v13H1z" strokeLinejoin="round"/>
+                          <path d="M16 8h4l3 3v5h-7V8z" strokeLinejoin="round"/>
+                          <circle cx="5.5" cy="18.5" r="2.5"/>
+                          <circle cx="18.5" cy="18.5" r="2.5"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wide">⚠ Tow Required</p>
+                        <p className="text-[9px] text-slate-400 leading-snug">
+                          <span className="font-bold text-white">{activeReq.mechanic?.name}</span> reports vehicle cannot be repaired on-site.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">
+                      <p className="text-[9px] text-amber-200 font-semibold leading-relaxed">
+                        Driver: <span className="font-bold text-white">{activeReq.driver.name}</span> · {activeReq.driver.vehicle.model} ({activeReq.driver.vehicle.plate})<br/>
+                        Location: <span className="text-amber-300">Kigali, Kiyovu · KN 3 Rd</span>
+                      </p>
+                    </div>
+                    <p className="text-[8px] text-amber-400 font-black uppercase tracking-wider animate-pulse">
+                      ▶ Dispatch tow truck from yard immediately
+                    </p>
                   </div>
                 )}
 

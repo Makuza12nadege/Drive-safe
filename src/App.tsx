@@ -164,12 +164,31 @@ export function App() {
       setCurrentScreen('Completion');
       
       addNotification('SOS Resolved', 'Emergency assistance has been completed successfully.');
+
+    } else if (status === 'towing') {
+      // Tow requested — keep the request alive, notify both driver and garage
+      setDriverRequest(prev => prev ? { ...prev, status: 'towing', notes: notes || 'Vehicle cannot be repaired on site. Tow truck dispatched.' } : null);
+
+      const mechName = driverRequest.mechanic?.name ?? 'The mechanic';
+      const garageName = driverRequest.garage?.name ?? 'the garage';
+
+      // Driver notification
+      addNotification(
+        '🚛 Tow Truck Dispatched',
+        `${mechName} determined your vehicle needs workshop repair. A tow truck from ${garageName} is on the way to your location.`
+      );
+      // Garage notification (goes into the same shared notification feed — garage sees it in their portal)
+      addNotification(
+        '🚛 Tow Required — Action Needed',
+        `${mechName} has requested a tow truck for driver ${driverRequest.driver.name} (${driverRequest.driver.vehicle.model}). Vehicle cannot be fixed on-site. Please dispatch tow truck from yard.`
+      );
+
     } else {
       setDriverRequest(prev => prev ? { ...prev, status } : null);
       if (status === 'en_route') {
         addNotification('Mechanic Dispatched', `${driverRequest.mechanic?.name} is on the way to Kiyovu KN 3 Rd.`);
       } else if (status === 'arrived') {
-        addNotification('Mechanic Arrived', 'Olivier Ndizeye has arrived at your exact location.');
+        addNotification('Mechanic Arrived', `${driverRequest.mechanic?.name} has arrived at your exact location.`);
       } else if (status === 'diagnosing') {
         addNotification('Diagnostics Started', 'Technician is checking engine codes and diagnostic system.');
       }

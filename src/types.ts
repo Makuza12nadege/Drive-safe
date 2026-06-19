@@ -7,6 +7,7 @@ export type SimulationStatus =
   | 'en_route'
   | 'arrived'
   | 'diagnosing'
+  | 'towing'
   | 'repaired'
   | 'completed'
   | 'declined';
