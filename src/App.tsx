@@ -30,6 +30,9 @@ export function App() {
   // Tab view for smaller screens: 'driver' | 'garage' | 'mechanic'
   const [activeTabViewport, setActiveTabViewport] = useState<'driver' | 'garage' | 'mechanic'>('driver');
 
+  // Track which garage the portal should show — updated the moment driver picks one
+  const [portalGarageId, setPortalGarageId] = useState<string>('g1');
+
   // Last completed request reference for rating
   const [lastCompletedRequest, setLastCompletedRequest] = useState<EmergencyRequest | null>(null);
 
@@ -54,6 +57,7 @@ export function App() {
     setIsDemoMode(false);
     setDemoStep(0);
     setDemoMessage('');
+    setPortalGarageId('g1');
   };
 
   // 1. Driver Requests Assistance
@@ -83,13 +87,11 @@ export function App() {
 
   // 2. Driver Selects Garage
   const handleSelectGarage = (garage: Garage) => {
+    // Immediately switch portal to selected garage BEFORE state batching
+    setPortalGarageId(garage.id);
     setDriverRequest(prev => {
       if (!prev) return null;
-      return {
-        ...prev,
-        garage: garage,
-        status: 'requested'
-      };
+      return { ...prev, garage: garage, status: 'requested' };
     });
     setCurrentScreen('Tracking');
 
@@ -426,6 +428,7 @@ export function App() {
           // Select garage
           setTimeout(() => {
             const gar = garages[0]; // Kigali Auto Care
+            setPortalGarageId(gar.id);
             setDriverRequest(prev => prev ? { ...prev, garage: gar, status: 'requested' } : null);
             setCurrentScreen('Tracking');
             setActiveTabViewport('garage'); // switch preview focus to garage portal!
@@ -739,12 +742,7 @@ export function App() {
             <div className="flex-1 overflow-hidden relative">
               <GarageDashboard
                 state={stateContainer}
-                activeGarage={
-                  // Show whichever garage received the active request; fall back to first garage
-                  driverRequest?.garage
-                    ? (garages.find(g => g.id === driverRequest.garage!.id) ?? garages[0])
-                    : garages[0]
-                }
+                activeGarage={garages.find(g => g.id === portalGarageId) ?? garages[0]}
                 onAcceptRequest={handleAcceptRequest}
                 onDeclineRequest={handleDeclineRequest}
                 onAssignMechanic={handleAssignMechanic}
