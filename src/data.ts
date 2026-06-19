@@ -55,6 +55,7 @@ export const initialGarages: Garage[] = [
 ];
 
 export const initialMechanics: Mechanic[] = [
+  // ── Kigali Auto Care (g1) ── 3 mechanics
   {
     id: 'm1',
     name: 'Olivier Ndizeye',
@@ -86,6 +87,23 @@ export const initialMechanics: Mechanic[] = [
     lng: 30.0600
   },
   {
+    id: 'm5',
+    name: 'Patrick Mugisha',
+    avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    phone: '+250 789 321 654',
+    rating: 4.7,
+    reviews: 36,
+    distance: 1.5,
+    services: ['Battery problem', 'Flat tire', 'Car won\'t start', 'Out of fuel'],
+    about: 'Fast-response roadside technician specializing in quick fixes and emergency fuel delivery.',
+    garageId: 'g1',
+    status: 'available',
+    lat: -1.9445,
+    lng: 30.0625
+  },
+
+  // ── Nyabugogo Speedy Mechanics (g2) ── 3 mechanics
+  {
     id: 'm3',
     name: 'Eric Nkurunziza',
     avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
@@ -101,6 +119,38 @@ export const initialMechanics: Mechanic[] = [
     lng: 30.0449
   },
   {
+    id: 'm6',
+    name: 'Samuel Hakizimana',
+    avatar: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    phone: '+250 782 555 666',
+    rating: 4.6,
+    reviews: 29,
+    distance: 2.9,
+    services: ['Flat tire', 'Battery problem', 'Engine Issue'],
+    about: 'Reliable mechanic covering Nyabugogo and surrounding routes. Fast response time.',
+    garageId: 'g2',
+    status: 'available',
+    lat: -1.9388,
+    lng: 30.0441
+  },
+  {
+    id: 'm7',
+    name: 'Yves Nzabonimana',
+    avatar: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    phone: '+250 783 777 888',
+    rating: 4.5,
+    reviews: 18,
+    distance: 3.0,
+    services: ['Towing', 'Accident assistance', 'Flat tire'],
+    about: 'Towing expert and accident response coordinator based in Nyabugogo hub.',
+    garageId: 'g2',
+    status: 'available',
+    lat: -1.9395,
+    lng: 30.0455
+  },
+
+  // ── Gikondo Car Clinic (g3) ── 3 mechanics
+  {
     id: 'm4',
     name: 'Cedric Mutabazi',
     avatar: 'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
@@ -114,6 +164,36 @@ export const initialMechanics: Mechanic[] = [
     status: 'available',
     lat: -1.9682,
     lng: 30.0784
+  },
+  {
+    id: 'm8',
+    name: 'Diane Uwimana',
+    avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    phone: '+250 788 999 000',
+    rating: 4.9,
+    reviews: 22,
+    distance: 3.6,
+    services: ['Engine Issue', 'Battery problem', 'Car won\'t start', 'Diagnostics'],
+    about: 'One of Kigali\'s top-rated female mechanics. Expert in diagnostics and engine repair.',
+    garageId: 'g3',
+    status: 'available',
+    lat: -1.9678,
+    lng: 30.0779
+  },
+  {
+    id: 'm9',
+    name: 'Alain Bizimungu',
+    avatar: 'https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    phone: '+250 785 100 200',
+    rating: 4.6,
+    reviews: 15,
+    distance: 3.7,
+    services: ['Need inspection', 'Engine Issue', 'Battery problem'],
+    about: 'Specialist in full vehicle inspection and pre-purchase checks. Gikondo area coverage.',
+    garageId: 'g3',
+    status: 'available',
+    lat: -1.9686,
+    lng: 30.0790
   }
 ];
 

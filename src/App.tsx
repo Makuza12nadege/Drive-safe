@@ -679,9 +679,14 @@ export function App() {
             <div className="flex-1 overflow-hidden relative">
               <MechanicDashboard
                 state={stateContainer}
-                activeMechanic={mechanics[0]} // Olivier Ndizeye mobile view on duty
+                activeMechanic={
+                  // Show the assigned mechanic; fall back to first available mechanic of the active garage
+                  driverRequest?.mechanic
+                    ? (mechanics.find(m => m.id === driverRequest.mechanic!.id) ?? mechanics[0])
+                    : mechanics.find(m => m.garageId === (driverRequest?.garage?.id ?? 'g1') && m.status !== 'offline') ?? mechanics[0]
+                }
                 onUpdateStatus={handleUpdateStatus}
-                onCallDriver={() => alert('Dialing driver Eric Keza...')}
+                onCallDriver={() => alert('Dialing driver ' + activeDriver.name + '...')}
                 onMessageDriver={() => alert('Opening driver message chat...')}
               />
             </div>
