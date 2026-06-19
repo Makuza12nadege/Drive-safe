@@ -2,7 +2,9 @@
 
 > **GPS-Powered Roadside Assistance Platform · Kigali, Rwanda**
 
-Drive Safe is a mobile application prototype that connects drivers stranded on the road with nearby verified garages and professional mechanics. Think of it like Uber — but for vehicle emergencies. You press a button, a mechanic comes to you.
+Drive Safe is a mobile application prototype that connects drivers who are stranded on the road with nearby verified garages and professional mechanics anywhere in Rwanda. It works like Uber but for vehicle emergencies — you press a button, a mechanic comes to you.
+
+The prototype runs as a **live simulator** with three phone screens displayed side by side on one page. All three screens are connected in real time — an action on one screen instantly updates the others. This allows you to experience the full emergency journey from three different perspectives at the same time.
 
 [![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://typescriptlang.org)
@@ -15,362 +17,170 @@ Drive Safe is a mobile application prototype that connects drivers stranded on t
 ## 🚀 Getting Started
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
 
-Then open `http://localhost:5173` in your browser.
+Open `http://localhost:5173` in your browser.
 
 ---
 
-## 🖥️ How the Simulator Works
+## 🖥️ The Three-Screen Simulator
 
-The app runs as a **3-screen simulator** — all connected in real time:
+When you open the app you will see three phone frames on the screen:
 
-| Screen | Role |
-|--------|------|
-| **Left** | Driver App (guest + registered) |
-| **Middle** | Garage Operations Portal |
-| **Right** | Mechanic Mobile App |
+- **Left phone** — the Driver App. This is what a stranded driver sees on their phone.
+- **Middle phone** — the Garage Portal. This is the operations dashboard for the garage receiving the emergency call.
+- **Right phone** — the Mechanic App. This is what the mechanic who gets dispatched sees on their phone.
 
-An action on one screen instantly updates the others. Use the **Start Auto-Demo** button at the top to watch the full journey run automatically, or interact manually.
+At the top of the page there is a **Start Auto-Demo** button. Press it and the entire emergency journey will run automatically, step by step, switching focus between the three phones so you can follow what is happening on each side. There is also a **Reset** button to start over from scratch at any time.
 
 ---
 
-## 📱 Screens & Features
+## 📱 Driver App — What the Driver Experiences
 
-### 1. Splash Screen
+The driver app takes the driver through a complete emergency journey from the moment they realize they need help to the moment their car is fixed and they submit a rating.
 
-The first screen when the app opens. Shows for ~3 seconds then moves to the home screen automatically.
+### Splash Screen
 
-- Drive Safe logo (`src/Logo.png`)
-- Custom SVG car illustration with orange wheel accents and a GPS pin
-- Slogan: *"Reliable Vehicle Assistance Anytime, Anywhere."*
-- Animated loading dots
+When the app first opens, the driver sees a splash screen with the Drive Safe logo, a custom car illustration, and the slogan *"Reliable Vehicle Assistance Anytime, Anywhere."* This screen lasts about three seconds and then moves automatically to the home screen.
 
-📸 `[INSERT SCREENSHOT: screenshots/01-splash.png]`
+### Emergency Home Screen
 
----
+This is the most important screen in the entire app. It is designed for a driver who is stressed and needs help fast. There is no login required — the driver does not need an account to get help.
 
-### 2. Emergency Home Screen
+The center of the screen has a large orange pulsing button that says **REQUEST ROAD ASSISTANCE**. This is the first thing the driver sees and the only thing they need to tap to start getting help. Below the button there is a GPS location badge showing the driver's current location in Kigali with a green active dot to confirm that location tracking is working. At the bottom of the screen there is a Help and Support section with a toll-free emergency number (912) and a link to verified garages. In the top right corner there is a Login or Register option for drivers who already have an account.
 
-The main screen. Designed for emergency use — **no login required** to ask for help.
+### Vehicle Problem Selection
 
-- Large pulsing orange **REQUEST ROAD ASSISTANCE** button (main action)
-- Live GPS location badge showing current location with green active dot
-- Create Account / Login CTA section
-- Help & Support footer (toll-free: **912**, verified garages badge)
-- Login / Guest Mode toggle in top-right
+After pressing the emergency button, the driver is asked to select what is wrong with their vehicle. There are seven options presented as cards in a grid: Battery problem, Flat tire, Car won't start, Engine issue, Accident assistance, Out of fuel, and Need inspection (for when the driver does not know what the problem is). Each card shows a small icon and a short description of what that option covers. When the driver taps a card it turns orange to show it is selected.
 
-📸 `[INSERT SCREENSHOT: screenshots/02-home.png]`
+Below the problem grid there is a text box where the driver can describe the problem in more detail, for example mentioning the exact road, any strange sounds the car is making, or any special information the mechanic might need. There is also an optional vehicle photo upload area where the driver can attach a picture of the problem to help the mechanic prepare. At the bottom there is a Find Garages button that only activates once a problem has been selected.
 
----
+### Location Search Screen
 
-### 3. Vehicle Problem Selection
+After the driver submits their problem, the app shows a live map of Kigali with animated radar rings pulsing outward from the driver's GPS pin. This communicates that the app is scanning the area for nearby garages. The screen lasts about two and a half seconds before automatically moving to the garages list. The driver can go back or cancel at any time using the buttons at the top.
 
-After pressing the emergency button the driver picks what is wrong with their car.
+### Nearby Garages Screen
 
-**7 problem cards:**
-- 🔋 Battery problem
-- 🔧 Flat tire
-- 🚫 Car won't start
-- ⚙️ Engine issue
-- 🚨 Accident assistance
-- ⛽ Out of fuel
-- 🔍 Need inspection (I don't know)
+This screen lists all three verified garages in the area. Each garage is shown as a card with its logo, name, and a blue verified badge. The card also shows the garage's star rating, how many reviews they have, how far away they are in kilometres, and an estimated arrival time for how long it would take their mechanic to reach the driver's location.
 
-Each card highlights orange when selected. Also includes:
-- Extra details text box
-- Vehicle photo upload
-- "Find Garages" button (activates only after a problem is chosen)
+A key feature on this screen is the **live mechanic availability indicator**. Each garage card shows a small coloured dot with text. If the garage has available mechanics the dot is green and says how many mechanics are free. If all of the garage's mechanics are currently busy helping other drivers the dot turns red and says "All mechanics on duty." If the driver tries to request a garage whose mechanics are all on duty, a toast message slides in from the top of the screen to explain that the garage is unavailable and suggest trying another one.
 
-📸 `[INSERT SCREENSHOT: screenshots/03-problems.png]`
+At the bottom of each garage card there is a Request Assistance button. When the driver taps this, the request is sent immediately to that garage.
 
----
+### Service Tracking Screen
 
-### 4. Location Search Screen
+Once the driver sends a request to a garage, this screen becomes the command centre for following the job in real time. The top half of the screen is a live map showing three pins: the driver's location (an orange pulsing pin), the garage location, and the mechanic's pin which animates and moves along the road route toward the driver as the job progresses.
 
-The app scans for nearby verified garages after the driver selects their problem.
+Below the map there is a mechanic assignment card that appears once the garage has dispatched someone. This card shows the mechanic's photo, full name, the garage they work for, their star rating, and a live estimated time of arrival that updates as they get closer. The card also has a call button and a message button so the driver can contact the mechanic directly.
 
-- Dark Kigali map with the driver's GPS pin at the center
-- Animated radar rings pulsing outward
-- Spinning search indicator — "Searching Kigali Verified Garages"
-- Back arrow + Cancel button
+Beneath the mechanic card there is a progress timeline showing seven stages of the job. The active stage pulses in orange and completed stages are shown in a darker colour. The seven stages are: Request received, Garage accepted, Mechanic assigned, Mechanic on the way, Mechanic arrived, Vehicle diagnosed, and Service completed (or Tow truck dispatched if the car cannot be fixed on-site).
 
-📸 `[INSERT SCREENSHOT: screenshots/04-searching.png]`
+**If the garage declines the request:** The tracking screen immediately changes to show a decline message that tells the driver which garage declined and why. The screen then shows quick-pick cards for the other two available garages so the driver can immediately send a new request without going back through the whole flow.
+
+**If the mechanic determines the car cannot be fixed on the road:** A prominent dark navy banner appears on the tracking screen with a truck icon that says the car needs to be towed to the workshop. It tells the driver which garage is sending the tow truck and asks them to stay with their vehicle. The driver is reassured that the mechanic will wait with them until the tow truck arrives.
+
+### Service Completion Screen
+
+When the mechanic submits the completed service report, the driver lands on the completion screen. This shows a green checkmark and a confirmation that the service was successful. A small summary card shows the mechanic's photo, name, the garage they came from, and the problem that was solved. The driver can then give a star rating from one to five and write a written review about their experience. After submitting the review, guest drivers see a popup encouraging them to create an account so their service history is saved and future requests are handled faster.
+
+### Registered Driver Dashboard
+
+Drivers who create an account get access to a personal dashboard. The header shows their profile photo, name, phone number, and a VIP badge. There is a back arrow to return to the home screen and a logout button.
+
+The dashboard contains several sections. The vehicle card shows the driver's registered car model, vehicle type, year, and plate number. There is a quick SOS button for registered drivers to request emergency help without going through the normal flow. There is a favorite garages section showing the two most frequently used garages with their ratings and distances. The service history section shows a complete log of every past emergency job including the problem type, the garage and mechanic who helped, the date, and the driver's rating and review for each job. At the bottom there is a notifications section showing unread alerts and a settings section.
 
 ---
 
-### 5. Nearby Garages Screen
+## 🏪 Garage Portal — What the Garage Sees
 
-Shows all verified garages near the driver. The driver picks one and sends a request.
+The garage portal is a professional operations dashboard. It uses a dark theme (dark navy and slate colours) to differentiate it from the driver's white app. The garage can manage everything from one screen.
 
-Each garage card shows:
-- Logo, name, and **VERIFIED** badge
-- ⭐ Rating and review count
-- Distance in km
-- Live mechanic availability — 🟢 green if free, 🔴 red if all on duty
-- Services offered (as small tags)
-- Estimated arrival time (ETA)
-- **Request Assistance** button
+### Header
 
-> **If all mechanics are on duty:** a toast message blocks the request — *"All mechanics at [Garage] are currently on duty. Try another garage."*
+The header shows the garage's logo and name with a verified badge. On the right there is a toggle switch labelled SOS Desk that can be set to Online or Offline. When it is online the garage is available to receive emergency calls. The Drive Safe logo is also visible in the header.
 
-📸 `[INSERT SCREENSHOT: screenshots/05-garages.png]`
+### Floating Notification Toast
 
-📸 `[INSERT SCREENSHOT: screenshots/05b-onduty-toast.png]`
+Every important event in the system fires a notification toast that slides down from the top of the garage portal screen. Importantly, the garage receives messages that are **specific to their role** — completely different from what the driver sees. For example, when a driver sends a request the garage sees: *"You have received an emergency call from Eric Keza (Toyota RAV4 · RAD 123 A). Problem: Flat tire. Driver is waiting at KN 3 Rd. Please respond immediately."* The driver at the same time sees a different message: *"Your request has been dispatched to Kigali Auto Care. Please stay with your vehicle."*
 
----
+### SOS Tab — Emergency Dispatch
 
-### 6. Service Tracking Screen
+This is the main working area for the garage. When a driver sends a request, a red pulsing badge appears on the SOS tab to alert the garage team. The tab shows a status banner at the top that changes as the job progresses.
 
-After sending the request, the driver sees a live map and a timeline of the job progress.
+Below the banner there is a driver information card showing the driver's photo, full name, phone number, vehicle model, and plate number. Next to it is a problem card showing exactly what the driver reported — the problem type, the GPS location on the map, any written notes from the driver, and the vehicle photo if one was attached.
 
-**Map area:**
-- Driver's orange GPS pin (pulsing)
-- Garage pin
-- Mechanic's pin animating along the route toward the driver
-- Back arrow + Cancel SOS button in floating header
+The garage then sees Accept and Decline buttons. If they accept, the screen immediately shows a list of all their mechanics with their availability status. Mechanics who are available have an Assign button. Mechanics who are currently on duty helping another driver have no button and are clearly labelled as unavailable. Mechanics who are offline are also labelled clearly. The garage selects one available mechanic and taps Assign to dispatch them to the driver.
 
-**Mechanic assignment card** (once dispatched):
-- Photo, name, garage, star rating
-- Live ETA counter
-- Call button (orange) + Message button
+If the mechanic later reports that the car cannot be fixed on-site, a tow alert card appears in the SOS tab. This card shows the driver's name, vehicle details, and location along with an amber Confirm Tow Dispatch button. Once the garage presses this button it changes to a green confirmation message saying the tow truck is on its way.
 
-**Progress timeline — 7 stages:**
-1. Request received
-2. Garage accepted
-3. Mechanic assigned
-4. Mechanic on the way
-5. Mechanic arrived
-6. Vehicle diagnosed
-7. Tow truck dispatched *(if car can't be repaired on-site)*
+At the bottom of the SOS tab there is a working hours editor where the garage can update their opening and closing times.
 
-**If garage declines:** A full screen appears with the garage's name, explanation, and quick-pick cards to try the other 2 garages.
+### Team Tab
 
-**Tow truck scenario:** A dark navy banner appears:
-> *"🚛 Tow Truck on the Way! Your vehicle cannot be repaired on-site. A tow truck from [Garage] has been dispatched. Please stay with your vehicle."*
+This tab shows a complete roster of all mechanics registered at the garage. Each mechanic card displays their photo, name, phone number, star rating, and total jobs completed. A coloured dot on each photo shows their live status: green for available, orange for on duty, and grey for offline. Mechanics who are on duty have their card highlighted with an orange border to make them easy to spot.
 
-📸 `[INSERT SCREENSHOT: screenshots/06-tracking-map.png]`
+### History Tab
 
-📸 `[INSERT SCREENSHOT: screenshots/06b-timeline.png]`
+This tab shows a log of every completed job that went through the garage. Each entry shows the driver's name and plate number, the problem that was reported, the mechanic who was assigned, and the date and time the job was completed. If the driver left a rating it is also shown.
 
-📸 `[INSERT SCREENSHOT: screenshots/06c-tow-banner.png]`
+### Reviews Tab
 
-📸 `[INSERT SCREENSHOT: screenshots/06d-declined.png]`
+This tab shows the garage's overall performance. At the top there is a rating summary card showing the garage's average star rating, the total number of reviews, and a bar chart breaking down how many reviews were 5 stars, 4 stars, 3 stars, 2 stars, and 1 star. Below the summary there is a list of individual written reviews from drivers, each showing the driver's name, the problem type, the mechanic who helped, the star rating given, and the full text of the review.
 
 ---
 
-### 7. Service Completion Screen
+## 🔧 Mechanic App — What the Mechanic Sees
 
-After the mechanic closes the job, the driver rates their experience.
+The mechanic app is a dark-themed mobile app designed for professionals working in the field. It has two tabs: My Job and Team.
 
-- Green checkmark + "Assistance Successful!"
-- Summary card: mechanic photo, name, garage, problem solved
-- 5-star rating system (tap 1–5 stars)
-- Written review text box
-- Submit Feedback button
-- Account creation popup for guest users
+### When No Job is Active
 
-📸 `[INSERT SCREENSHOT: screenshots/07-completion.png]`
+When the mechanic is online but has not yet been assigned to a job, the screen shows a faint map background with an animated wrench icon and the message "No active job — Waiting for garage dispatch." At the bottom there is a GPS tracker showing the mechanic's live coordinates to confirm they are trackable. The mechanic can tap Go Offline at any time to remove themselves from the available pool.
 
----
+### When a Job is Assigned — My Job Tab
 
-### 8. Registered Driver Dashboard
+This is the most important screen in the mechanic's app. It is designed around the driver's location as the primary piece of information the mechanic needs.
 
-For drivers with accounts. Manage profile, vehicle, and service history.
+The top section of the screen is a tall map showing the mechanic's own pin and the driver's pin with an animated route between them. The mechanic's pin moves in real time as they travel toward the driver. At the top of the map there is the SOS job ID and the current job status. Pinned to the bottom of the map is a location bar showing the driver's full street address (Kigali, Kiyovu — KN 3 Rd), the GPS coordinates, a green live GPS indicator, and a bright orange Navigate button the mechanic can tap to open turn-by-turn navigation directly to the driver.
 
-- Dark navy header: driver photo, name, phone, VIP badge, back arrow, logout
-- **Vehicle card:** model, type, year, plate number
-- **Quick SOS button:** orange card for fast emergency requests
-- **Favorite Garages:** top 2 saved garages with rating and distance
-- **Service History:** all past jobs with problem, garage, mechanic, date, rating, review
-- **Notifications & Settings:** badge count and app version
+Below the map there is the driver's profile card showing their photo, full name, phone number, vehicle model badge, and plate number badge. The call button on this card is solid orange so it is immediately obvious. There is also a message button. At the bottom of this card there is a row showing the GPS address again with a live indicator.
 
-📸 `[INSERT SCREENSHOT: screenshots/08-dashboard.png]`
+Below the driver card there is a vehicle details card showing the car model, type (SUV, Sedan, etc.), and year. Then there is the reported problem card showing the problem category with its icon, the driver's written notes in a quote block, and the incident photo if the driver attached one.
+
+At the bottom of the screen there are action buttons that the mechanic uses to update the job stage step by step. These are: Start Journey, Mark as Arrived, Start Diagnostics, Complete Repair, and Tow. When the mechanic taps Complete Repair a service report form slides open where they can write what they did, attach a photo of the completed work, and then submit the report to close the ticket. When the mechanic taps Tow, the system notifies the driver that a tow truck is coming and alerts the garage to dispatch one from their yard.
+
+### Team Tab
+
+The mechanic can switch to the team tab to see all colleagues at the same garage with their live statuses. Their own card is marked with a "You" badge. A legend at the bottom explains the three status colours.
 
 ---
 
-### 9. Garage Dashboard
+## 🔔 How Notifications Work
 
-Professional operations portal for the garage team.
+Every step of the emergency journey fires notifications. The driver and the garage receive completely different messages — each written from their perspective and containing only the information relevant to them.
 
-#### Header
-- Garage logo, name, VERIFIED badge
-- SOS Desk toggle (Online / Offline)
+For example, when the mechanic completes the job:
 
-#### Floating Notification Toast
-Every important event (new request, job completed, review received) slides down as a toast — with a message **specific to the garage**, not the driver.
+- **The driver receives:** *"Olivier Ndizeye from Kigali Auto Care has successfully completed the roadside service on your Toyota RAV4. Please take a moment to rate your experience."*
+- **The garage receives:** *"Olivier Ndizeye has submitted the service report and closed the job ticket for driver Eric Keza (Toyota RAV4 · RAD 123 A). Problem resolved: Flat tire. Mechanic is now available."*
 
-#### 4 Tabs
-
-**🚨 SOS Tab — Emergency Dispatch**
-- Red pulsing badge on tab when a request arrives
-- Driver card: photo, name, phone, vehicle + plate
-- Problem card: problem type, GPS location, driver notes, vehicle photo
-- **Accept** (orange) / **Decline** (grey) buttons
-- After accepting: mechanic assignment list
-  - 🟢 Available → "Assign" button shown
-  - 🟠 On Duty → no button, labelled clearly
-  - ⚫ Offline → no button, labelled clearly
-- Working hours editor
-
-**Tow Alert (when mechanic requests tow):**
-- Driver name, vehicle, and location displayed
-- Amber **"Confirm Tow Dispatch"** button
-- After confirming → turns green: *"✓ Tow truck dispatched — En route"*
-
-**👥 Team Tab**
-- Full mechanic roster with live status dots
-- 🟢 Available · 🟠 On Duty · ⚫ Offline
-
-**📋 History Tab**
-- All completed jobs: driver, plate, problem, mechanic, date, rating
-
-**⭐ Reviews Tab**
-- Rating bar chart (5→1 stars)
-- Individual reviews with driver name, written comment, rating
-
-📸 `[INSERT SCREENSHOT: screenshots/09-garage-sos.png]`
-
-📸 `[INSERT SCREENSHOT: screenshots/09b-garage-assign.png]`
-
-📸 `[INSERT SCREENSHOT: screenshots/09c-tow-confirm.png]`
-
-📸 `[INSERT SCREENSHOT: screenshots/09d-garage-team.png]`
-
-📸 `[INSERT SCREENSHOT: screenshots/09e-garage-notif.png]`
+Notifications appear as toast messages that slide down from the top of the respective screen and disappear automatically after a few seconds. The driver can dismiss them manually with an X button.
 
 ---
 
-### 10. Mechanic Dashboard
+## 🎨 Design & Color Theme
 
-Mobile app for the mechanic. When assigned to a job, they see the driver's full details, location, and step-by-step job controls.
+The app uses three primary colours that reflect the brand values of safety, trust, and emergency response:
 
-#### Header
-- Mechanic photo with live status dot
-- Name + status (Available / On Duty / Job Active)
-- Go Offline button
+- **Dark Navy** is used for headers, primary buttons, and the registered dashboard background. It communicates trust and professionalism.
+- **Orange** is used for the emergency button, active states, alerts, and all primary call-to-action elements. It communicates urgency and draws the eye immediately to what matters most.
+- **White** is used for card backgrounds and text on dark surfaces. It keeps the interface clean and readable.
 
-#### My Job Tab — Active Job
+The garage and mechanic dashboards use a very dark slate colour scheme to feel distinct from the driver's lighter white app — this helps reinforce that these are professional tools for service providers rather than consumer-facing screens.
 
-The screen is built around the **driver's location as the #1 priority:**
-
-**Map section (tall):**
-- Mechanic's pin animating toward the driver
-- SOS job ID badge (top-left)
-- Job status badge (top-right)
-
-**Location bar (pinned to bottom of map):**
-- 📍 Address: *"Kigali, Kiyovu — KN 3 Rd"*
-- GPS coordinates: *"1.9462° S, 30.0612° E"*
-- Orange **Navigate** button to open turn-by-turn directions
-
-**Driver profile card:**
-- Large photo, name, phone
-- Vehicle model badge (orange) + plate badge (dark)
-- 🟢 GPS Live indicator
-- 📞 Call button (solid orange) + 💬 Message button
-
-**Vehicle card:** Model, type, year
-
-**Problem card:** Problem icon + name, driver's notes, incident photo
-
-**Action buttons (bottom):**
-1. "Start Journey (On the Way)"
-2. "Mark as Arrived"
-3. "Start Diagnostics"
-4. "Complete Repair" → opens service report form (notes + photo + submit)
-5. "Tow" (red) → requests tow truck if car can't be fixed on-site
-
-#### Team Tab
-- Full garage roster with live status dots and "You" badge on the active mechanic
-- Status legend at bottom
-
-📸 `[INSERT SCREENSHOT: screenshots/10-mechanic-job.png]`
-
-📸 `[INSERT SCREENSHOT: screenshots/10b-driver-card.png]`
-
-📸 `[INSERT SCREENSHOT: screenshots/10c-actions.png]`
-
-📸 `[INSERT SCREENSHOT: screenshots/10d-report-form.png]`
-
----
-
-## 🔔 Notifications — Role-Specific Messages
-
-The driver and garage receive **completely different notifications** — each person only sees what is relevant to them.
-
-### Driver receives:
-
-| Event | Message |
-|-------|---------|
-| Request sent | "Your request has been dispatched to [Garage]. Stay with your vehicle." |
-| Garage accepts | "[Garage] accepted your request and is assigning a mechanic." |
-| Garage declines | "[Garage] is unable to take your call. Please select another garage." |
-| Mechanic assigned | "[Mechanic] has been assigned to your case and is reviewing your vehicle details." |
-| Mechanic en route | "[Mechanic] is heading to your location. ETA: [X] mins." |
-| Mechanic arrived | "[Mechanic] has arrived. Please come meet him." |
-| Diagnosing | "[Mechanic] is inspecting your [Vehicle] and running a full diagnostic." |
-| Tow requested | "🚛 Your vehicle cannot be repaired on-site. A tow truck is on the way." |
-| Service completed | "✅ [Mechanic] has successfully completed the service. Please rate." |
-| Review submitted | "Thank you for your [X]-star review for [Garage]!" |
-
-### Garage receives:
-
-| Event | Message |
-|-------|---------|
-| New request | "🚨 Emergency call from [Driver] ([Vehicle] · [Plate]). Problem: [X]. At KN 3 Rd." |
-| Request accepted | "You accepted the call. Please assign an available mechanic immediately." |
-| Request declined | "You declined the request. Driver has been redirected to another garage." |
-| Mechanic assigned | "[Mechanic] has been assigned to the job for [Driver]." |
-| Mechanic en route | "[Mechanic] has left and is en route to KN 3 Rd." |
-| Mechanic arrived | "[Mechanic] has arrived at the driver's location." |
-| Diagnosing started | "[Mechanic] has begun diagnosing [Driver]'s [Vehicle]." |
-| Job completed | "🔧 [Mechanic] has closed the job for [Driver]. Problem resolved. Mechanic now available." |
-| Review received | "⭐⭐⭐⭐⭐ [Driver] rated the service [X]/5. '[Comment]'" |
-
-📸 `[INSERT SCREENSHOT: screenshots/11-driver-notif.png]`
-
-📸 `[INSERT SCREENSHOT: screenshots/11b-garage-notif.png]`
-
----
-
-## 🔙 Back Navigation
-
-Every screen has a way to go back without getting stuck:
-
-| Screen | Back action |
-|--------|------------|
-| Problem Selection | ← Back to Home |
-| Searching | ← Back to Problem Selection |
-| Garages | ← Back to Problem Selection |
-| Tracking | ← Back to Garages (in map header) |
-| Completion | ← Back to Dashboard or Home |
-| Registered Dashboard | ← Back to Home (top-left arrow) |
-
----
-
-## 🎨 Color Theme
-
-| Color | Hex | Used for |
-|-------|-----|---------|
-| **Dark Navy** | `#1e3a5f` | Headers, primary buttons, backgrounds |
-| **Orange** | `#f97316` | Emergency button, active states, alerts |
-| **White** | `#ffffff` | Card backgrounds, text on dark |
-| **Slate Dark** | `#0f172a` | Garage and mechanic dashboard bg |
-| **Emerald** | `#10b981` | Available status, success states |
-| **Amber** | `#f59e0b` | Star ratings |
-
-**Design principles:**
-- Rounded cards (`rounded-2xl` / `rounded-3xl`)
-- Color-matched shadows on buttons
-- Pulsing animations on all live/active elements
-- Emergency elements always use orange so the driver's eye goes there first
-- All text on dark backgrounds is white or light grey for full readability
+All interactive elements have smooth animations powered by Framer Motion. Live status elements (GPS pins, availability dots, notification pulses) use subtle pulse animations to communicate that they are updating in real time. All cards use rounded corners and soft shadows to give the app a modern feel similar to apps like Uber and Bolt.
 
 ---
 
@@ -379,48 +189,51 @@ Every screen has a way to go back without getting stuck:
 ```
 Drive Safe/
 ├── public/
-│   └── personal_p.jpg          # Profile photo
+│   └── personal_p.jpg              # Profile photo asset
 ├── src/
-│   ├── Logo.png                 # Drive Safe logo
-│   ├── App.tsx                  # Root — shared state + all handlers
-│   ├── data.ts                  # Garages, mechanics, history seed data
-│   ├── types.ts                 # TypeScript interfaces
-│   ├── index.css                # Global styles
-│   ├── components/
-│   │   ├── driver/
-│   │   │   └── DriverApp.tsx    # All driver screens (Splash → Completion)
-│   │   ├── garage/
-│   │   │   └── GarageDashboard.tsx
-│   │   ├── mechanic/
-│   │   │   └── MechanicDashboard.tsx
-│   │   └── shared/
-│   │       └── MockMap.tsx      # Animated Kigali map with route + pins
-└── DOCUMENTATION.md             # Full detailed documentation
+│   ├── Logo.png                     # Drive Safe logo
+│   ├── App.tsx                      # Root component — manages all shared state
+│   ├── data.ts                      # Seed data for garages, mechanics, history
+│   ├── types.ts                     # TypeScript type definitions
+│   ├── index.css                    # Global styles
+│   └── components/
+│       ├── driver/
+│       │   └── DriverApp.tsx        # All driver-facing screens
+│       ├── garage/
+│       │   └── GarageDashboard.tsx  # Garage operations portal
+│       ├── mechanic/
+│       │   └── MechanicDashboard.tsx# Mechanic mobile app
+│       └── shared/
+│           └── MockMap.tsx          # Animated Kigali map with GPS pins and routes
 ```
 
 ---
 
-## 🏪 Garages & Mechanics Data
+## 🏪 Garages & Mechanics
+
+The prototype includes three verified garages in Kigali and nine mechanics split equally across them.
 
 ### Garages
 
-| Name | Distance | ETA | Services |
-|------|----------|-----|---------|
+| Name | Distance | ETA | Specialises In |
+|------|----------|-----|----------------|
 | Kigali Auto Care | 1.2 km | 8 mins | Engine, Battery, Flat tire, Diagnostics |
-| Nyabugogo Speedy Mechanics | 2.8 km | 14 mins | Flat tire, Fuel, Towing, Accident |
-| Gikondo Car Clinic | 3.5 km | 18 mins | Engine, Battery, Inspection |
+| Nyabugogo Speedy Mechanics | 2.8 km | 14 mins | Flat tire, Fuel delivery, Towing, Accident |
+| Gikondo Car Clinic | 3.5 km | 18 mins | Engine, Battery, Full inspection |
 
-### Mechanics (9 total, 3 per garage)
+### Mechanics
 
-| Garage | Mechanic | Default Status | Speciality |
-|--------|----------|---------------|-----------|
+Each garage has three mechanics. Their statuses are set to reflect a realistic working environment — not everyone is available at the same time.
+
+| Garage | Mechanic | Status | Speciality |
+|--------|----------|--------|-----------|
 | Kigali Auto Care | Olivier Ndizeye ⭐ 4.9 | Available | Diagnostics, Engine |
-| Kigali Auto Care | Jean-Paul Habimana ⭐ 4.8 | **On Duty** | Flat tire, Brakes |
+| Kigali Auto Care | Jean-Paul Habimana ⭐ 4.8 | On Duty | Flat tire, Brakes |
 | Kigali Auto Care | Patrick Mugisha ⭐ 4.7 | Available | Battery, Fuel |
-| Nyabugogo Speedy | Eric Nkurunziza ⭐ 4.7 | **On Duty** | Towing, Accident |
+| Nyabugogo Speedy | Eric Nkurunziza ⭐ 4.7 | On Duty | Towing, Accident |
 | Nyabugogo Speedy | Samuel Hakizimana ⭐ 4.6 | Available | Flat tire, Engine |
 | Nyabugogo Speedy | Yves Nzabonimana ⭐ 4.5 | Offline | Towing |
-| Gikondo Car Clinic | Cedric Mutabazi ⭐ 4.8 | **On Duty** | Diagnostics |
+| Gikondo Car Clinic | Cedric Mutabazi ⭐ 4.8 | On Duty | Diagnostics |
 | Gikondo Car Clinic | Diane Uwimana ⭐ 4.9 | Available | Engine, Battery |
 | Gikondo Car Clinic | Alain Bizimungu ⭐ 4.6 | Offline | Inspection |
 
@@ -428,37 +241,21 @@ Drive Safe/
 
 ## 🛠️ Tech Stack
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| React | 18 | UI framework |
-| TypeScript | 5 | Type safety |
-| Vite | 5 | Build tool and dev server |
-| Tailwind CSS | 3 | Utility-first styling |
-| Framer Motion | 10 | Animations and transitions |
-| Lucide React | Latest | Icons |
-
----
-
-## 📖 Adding Screenshots
-
-1. Create a `screenshots/` folder inside the project root
-2. Take screenshots of each screen from the running app
-3. Save them with the names shown in the `[INSERT SCREENSHOT]` markers above
-4. Replace each marker line with:
-
-```markdown
-![Screen Name](./screenshots/filename.png)
-```
-
-**Recommended screen sizes:** Capture the phone frame at full height (780px tall) for best results.
+| Tool | Purpose |
+|------|---------|
+| React 18 + TypeScript | UI framework with type safety |
+| Vite 5 | Development server and build tool |
+| Tailwind CSS 3 | Utility-first styling system |
+| Framer Motion 10 | Animations and screen transitions |
+| Lucide React | Icon library |
 
 ---
 
 ## 🔗 Repository
 
-**GitHub:** `https://github.com/Makuza12nadege/Drive-safe`
+**GitHub:** [https://github.com/Makuza12nadege/Drive-safe](https://github.com/Makuza12nadege/Drive-safe)
 
 ---
 
-*Drive Safe · Version 1.0 · June 2026 · Kigali, Rwanda*
+*Drive Safe · Version 1.0 · June 2026 · Kigali, Rwanda*  
 *Built with Kiro AI*
