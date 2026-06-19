@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check, X, Wrench, Phone, MessageSquare, Navigation, CheckCircle2,
-  Upload, LogOut, ArrowRight, ShieldAlert, Users, Star
+  Upload, LogOut, ArrowRight, ShieldAlert, Users, Star, MapPin, User, Car
 } from 'lucide-react';
 import { AppState, Mechanic, EmergencyRequest } from '../../types';
 import { MockMap } from '../shared/MockMap';
@@ -139,44 +139,127 @@ export function MechanicDashboard({
           {/* ── JOB TAB: active job ── */}
           {activeTab === 'job' && activeReq && (
             <div className="flex-1 flex flex-col">
-              {/* Map */}
-              <div className="h-36 relative border-b border-slate-800 shrink-0">
-                <MockMap status={activeReq.status} garage={activeReq.garage} mechanic={activeMechanic} showDetails={false} />
-                <div className="absolute top-2 left-2 bg-slate-950/90 border border-slate-800 text-[8px] px-2 py-0.5 rounded-lg flex items-center gap-1 text-white">
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" /> SOS #{activeReq.id}
+
+              {/* ── DRIVER LOCATION HERO ── full-width map + location bar */}
+              <div className="relative shrink-0 border-b border-slate-800">
+                {/* Map — taller so it feels like a real navigation screen */}
+                <div className="h-44">
+                  <MockMap status={activeReq.status} garage={activeReq.garage} mechanic={activeMechanic} showDetails={false} />
                 </div>
-                <div className="absolute bottom-2 right-2 bg-slate-950/80 border border-slate-800 text-[8px] px-2 py-0.5 rounded-lg flex items-center gap-1 text-white">
-                  <Navigation size={9} className="rotate-45 text-orange-500" /> Route Active
+
+                {/* SOS badge top-left */}
+                <div className="absolute top-2 left-2 bg-slate-950/90 border border-slate-800 text-[8px] px-2 py-0.5 rounded-lg flex items-center gap-1 text-white z-10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" /> SOS #{activeReq.id}
+                </div>
+
+                {/* Status badge top-right */}
+                <div className="absolute top-2 right-2 bg-orange-500/90 border border-orange-400/30 text-[8px] font-black uppercase px-2 py-0.5 rounded-lg text-white z-10">
+                  {activeReq.status.replace('_', ' ')}
+                </div>
+
+                {/* Driver location card — sits at the bottom of the map */}
+                <div className="absolute bottom-0 inset-x-0 bg-slate-950/95 border-t border-slate-800 px-3 py-2.5 z-10">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center shrink-0">
+                        <MapPin size={15} className="text-orange-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">DRIVER LOCATION</p>
+                        <p className="text-[11px] font-extrabold text-white truncate">Kigali, Kiyovu — KN 3 Rd</p>
+                        <p className="text-[9px] text-slate-400 font-mono">1.9462° S, 30.0612° E</p>
+                      </div>
+                    </div>
+                    {/* Navigate button */}
+                    <button
+                      onClick={() => alert('Opening navigation to Kigali, Kiyovu — KN 3 Rd…')}
+                      className="shrink-0 flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[9px] uppercase tracking-wide px-3 py-2 rounded-xl transition-all active:scale-95 shadow-lg shadow-orange-500/20"
+                    >
+                      <Navigation size={12} className="rotate-45" />
+                      Navigate
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Scrollable job details */}
               <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                {/* Driver */}
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
-                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider">DRIVER</span>
+
+                {/* Driver profile card — prominent */}
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
+                  {/* Card header */}
+                  <div className="flex items-center justify-between px-3 pt-3 pb-2 border-b border-slate-800">
+                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider flex items-center gap-1">
+                      <User size={9} className="text-orange-400" /> DRIVER IN DISTRESS
+                    </span>
                     <div className="flex gap-1.5">
-                      <button onClick={() => setShowCallOverlay(true)} className="w-7 h-7 rounded-lg bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white flex items-center justify-center transition-colors"><Phone size={12} /></button>
-                      <button onClick={onMessageDriver} className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors"><MessageSquare size={12} /></button>
+                      <button onClick={() => setShowCallOverlay(true)}
+                        className="w-7 h-7 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-colors shadow">
+                        <Phone size={12} />
+                      </button>
+                      <button onClick={onMessageDriver}
+                        className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors">
+                        <MessageSquare size={12} />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <img src={activeReq.driver.avatar} alt="Driver" className="w-10 h-10 rounded-xl object-cover" />
-                    <div>
-                      <p className="font-bold text-xs">{activeReq.driver.name}</p>
-                      <p className="text-[9px] text-slate-400">{activeReq.driver.phone}</p>
-                      <p className="text-[9px] text-orange-400 font-bold">{activeReq.driver.vehicle.model} · {activeReq.driver.vehicle.plate}</p>
+
+                  {/* Driver info */}
+                  <div className="flex items-center gap-3 px-3 py-3">
+                    <img src={activeReq.driver.avatar} alt="Driver" className="w-12 h-12 rounded-xl object-cover border-2 border-slate-700 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-extrabold text-sm text-white leading-tight">{activeReq.driver.name}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">{activeReq.driver.phone}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-[9px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-lg">
+                          {activeReq.driver.vehicle.model}
+                        </span>
+                        <span className="text-[9px] font-mono font-bold text-slate-300 bg-slate-800 px-2 py-0.5 rounded-lg">
+                          {activeReq.driver.vehicle.plate}
+                        </span>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Location row at bottom of card */}
+                  <div className="border-t border-slate-800 px-3 py-2 flex items-center gap-2 bg-slate-900/40">
+                    <MapPin size={11} className="text-orange-400 shrink-0" />
+                    <span className="text-[9px] text-slate-300 font-semibold">Kigali, Kiyovu — KN 3 Rd</span>
+                    <span className="ml-auto text-[8px] text-emerald-400 font-bold flex items-center gap-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> GPS Live
+                    </span>
+                  </div>
+                </div>
+
+                {/* Vehicle type row */}
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
+                    <Car size={16} className="text-slate-300" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider">VEHICLE</p>
+                    <p className="text-xs font-bold text-white">{activeReq.driver.vehicle.model} · {activeReq.driver.vehicle.type}</p>
+                    <p className="text-[9px] text-slate-400">Year {activeReq.driver.vehicle.year}</p>
                   </div>
                 </div>
 
                 {/* Incident */}
                 <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3">
-                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block mb-1.5">INCIDENT</span>
-                  <p className="text-xs font-black flex items-center gap-1.5 mb-1.5"><Wrench size={13} className="text-orange-500" /> {activeReq.problemType}</p>
-                  <p className="text-[10px] text-slate-300 bg-slate-900 p-2 rounded-xl border border-slate-800 italic leading-normal">"{activeReq.details || 'No message left by driver.'}"</p>
-                  {activeReq.photo && <img src={activeReq.photo} alt="Issue" className="rounded-xl w-full h-20 object-cover mt-2" />}
+                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block mb-2">REPORTED PROBLEM</span>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0">
+                      <Wrench size={14} className="text-orange-400" />
+                    </div>
+                    <p className="text-sm font-extrabold text-white">{activeReq.problemType}</p>
+                  </div>
+                  {activeReq.details && (
+                    <p className="text-[10px] text-slate-300 bg-slate-900 p-2.5 rounded-xl border border-slate-800 italic leading-relaxed">
+                      "{activeReq.details}"
+                    </p>
+                  )}
+                  {activeReq.photo && (
+                    <img src={activeReq.photo} alt="Issue" className="rounded-xl w-full h-24 object-cover mt-2 border border-slate-800" />
+                  )}
                 </div>
 
                 {/* Repair report form */}
