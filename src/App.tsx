@@ -107,7 +107,14 @@ export function App() {
 
   // 4. Garage Declines Request
   const handleDeclineRequest = () => {
-    addNotification('SOS Request Declined', 'Garage was unable to take your call. Please select another provider.');
+    if (!driverRequest) return;
+    // Mark request as declined so driver sees the feedback screen
+    setDriverRequest(prev => prev ? { ...prev, status: 'declined' } : null);
+    addNotification('SOS Request Declined', `${driverRequest.garage?.name} was unable to take your call. Please select another garage.`);
+  };
+
+  // 4b. Driver dismisses declined screen → clear and go home
+  const handleClearDeclined = () => {
     setDriverRequest(null);
     setCurrentScreen('Home');
   };
@@ -608,6 +615,7 @@ export function App() {
                 onRequestAssistance={handleRequestAssistance}
                 onSelectGarage={handleSelectGarage}
                 onCancelRequest={() => handleUpdateStatus('completed', 'SOS Cancelled by Driver.')}
+                onClearDeclined={handleClearDeclined}
                 onSubmitReview={handleSubmitReview}
                 onRegister={handleRegister}
                 isRegisteredMode={isRegisteredMode}
@@ -636,7 +644,12 @@ export function App() {
             <div className="flex-1 overflow-hidden relative">
               <GarageDashboard
                 state={stateContainer}
-                activeGarage={garages[0]} // Kigali Auto Care operations desk
+                activeGarage={
+                  // Show whichever garage received the active request; fall back to first garage
+                  driverRequest?.garage
+                    ? (garages.find(g => g.id === driverRequest.garage!.id) ?? garages[0])
+                    : garages[0]
+                }
                 onAcceptRequest={handleAcceptRequest}
                 onDeclineRequest={handleDeclineRequest}
                 onAssignMechanic={handleAssignMechanic}

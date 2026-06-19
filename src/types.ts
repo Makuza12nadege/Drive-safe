@@ -8,7 +8,8 @@ export type SimulationStatus =
   | 'arrived'
   | 'diagnosing'
   | 'repaired'
-  | 'completed';
+  | 'completed'
+  | 'declined';
 
 export type Screen =
   | 'Splash'

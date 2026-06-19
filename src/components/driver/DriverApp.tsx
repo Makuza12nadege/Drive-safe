@@ -15,6 +15,7 @@ interface DriverAppProps {
   onRequestAssistance: (problem: string, details: string, photo: string | null) => void;
   onSelectGarage: (garage: Garage) => void;
   onCancelRequest: () => void;
+  onClearDeclined: () => void;
   onSubmitReview: (rating: number, review: string) => void;
   onRegister: (name: string, phone: string, model: string, plate: string) => void;
   isRegisteredMode: boolean;
@@ -27,6 +28,7 @@ export function DriverApp({
   onRequestAssistance,
   onSelectGarage,
   onCancelRequest,
+  onClearDeclined,
   onSubmitReview,
   onRegister,
   isRegisteredMode,
@@ -51,6 +53,9 @@ export function DriverApp({
   const [regPhone, setRegPhone] = useState('');
   const [regModel, setRegModel] = useState('Toyota RAV4');
   const [regPlate, setRegPlate] = useState('RAD 123 A');
+
+  // On-duty mechanic toast
+  const [onDutyToast, setOnDutyToast] = useState<string | null>(null);
 
   // Problems List
   const problems = [
@@ -452,6 +457,25 @@ export function DriverApp({
       case 'Garages':
         return (
           <div className="h-full bg-white flex flex-col justify-between">
+            {/* On-duty toast */}
+            <AnimatePresence>
+              {onDutyToast && (
+                <motion.div
+                  initial={{ y: -60, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -60, opacity: 0 }}
+                  className="absolute top-10 inset-x-4 z-50 bg-slate-900 border border-orange-500/40 text-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-2xl"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0">
+                    <Wrench size={15} className="text-orange-400" />
+                  </div>
+                  <p className="text-[11px] font-semibold leading-snug flex-1">{onDutyToast}</p>
+                  <button onClick={() => setOnDutyToast(null)} className="text-slate-400 hover:text-white shrink-0">
+                    <X size={14} />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
             {/* Header */}
             <div className="px-5 pt-8 pb-4 flex items-center justify-between border-b border-slate-50">
               <div className="flex items-center gap-3">
@@ -507,6 +531,19 @@ export function DriverApp({
                           <span>•</span>
                           <span>{gar.distance} km away</span>
                         </div>
+                        {/* Mechanic availability */}
+                        {(() => {
+                          const garMechs = state.mechanics.filter(m => m.garageId === gar.id);
+                          const availCount = garMechs.filter(m => m.status === 'available').length;
+                          return (
+                            <div className="flex items-center gap-1 mt-1">
+                              <span className={`w-1.5 h-1.5 rounded-full ${availCount > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-red-400'}`} />
+                              <span className={`text-[9px] font-bold ${availCount > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                                {availCount > 0 ? `${availCount} mechanic${availCount > 1 ? 's' : ''} available` : 'All mechanics on duty'}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
 
@@ -533,7 +570,17 @@ export function DriverApp({
                         </span>
                       </div>
                       <button
-                        onClick={() => onSelectGarage(gar)}
+                        onClick={() => {
+                          // Check if this garage has any available mechanic
+                          const garMechanics = state.mechanics.filter(m => m.garageId === gar.id);
+                          const hasAvailable = garMechanics.some(m => m.status === 'available');
+                          if (!hasAvailable && garMechanics.length > 0) {
+                            setOnDutyToast(`All mechanics at ${gar.name} are currently on duty. Try another garage.`);
+                            setTimeout(() => setOnDutyToast(null), 3500);
+                            return;
+                          }
+                          onSelectGarage(gar);
+                        }}
                         className="bg-navy-800 hover:bg-navy-950 text-white font-extrabold text-xs uppercase tracking-wider px-4 py-2.5 rounded-2xl shadow-md active:scale-98 transition-all"
                       >
                         Request Assistance
@@ -549,6 +596,60 @@ export function DriverApp({
       case 'Tracking':
         const activeReq = state.driverRequest;
         if (!activeReq) return null;
+
+        // ── DECLINED by garage ──
+        if (activeReq.status === 'declined') {
+          return (
+            <div className="h-full bg-white flex flex-col items-center justify-center px-6 text-center">
+              <motion.div
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', bounce: 0.4 }}
+                className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-5"
+              >
+                <X size={36} className="text-red-500" strokeWidth={2.5} />
+              </motion.div>
+              <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
+                <h2 className="text-xl font-black text-navy-900 mb-2">Request Declined</h2>
+                <p className="text-sm text-slate-500 mb-1">
+                  <span className="font-bold text-navy-800">{activeReq.garage?.name}</span> is unable to assist right now.
+                </p>
+                <p className="text-xs text-slate-400 mb-8 max-w-[260px] mx-auto">
+                  Don't worry — there are other verified garages nearby. Try another provider below.
+                </p>
+
+                {/* Garage quick-pick */}
+                <div className="w-full space-y-3 mb-6">
+                  {state.garages
+                    .filter(g => g.id !== activeReq.garage?.id)
+                    .map(g => (
+                      <button
+                        key={g.id}
+                        onClick={() => onSelectGarage(g)}
+                        className="w-full flex items-center gap-3 bg-slate-50 border border-slate-100 hover:border-orange-300 hover:bg-orange-50/40 rounded-2xl p-3 transition-all text-left"
+                      >
+                        <img src={g.logo} alt={g.name} className="w-10 h-10 rounded-xl object-cover border border-slate-100 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-navy-900 truncate">{g.name}</p>
+                          <p className="text-[9px] text-slate-400 font-medium">{g.distance} km · ETA {g.eta}</p>
+                        </div>
+                        <span className="text-[9px] font-black text-orange-500 bg-orange-50 border border-orange-100 px-2 py-1 rounded-xl shrink-0">
+                          Request
+                        </span>
+                      </button>
+                    ))}
+                </div>
+
+                <button
+                  onClick={onClearDeclined}
+                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm rounded-2xl transition-all"
+                >
+                  Go Back Home
+                </button>
+              </motion.div>
+            </div>
+          );
+        }
 
         const timelineSteps = [
           { key: 'requested', label: 'Request received' },
