@@ -57,6 +57,25 @@ export function DriverApp({
   // On-duty mechanic toast
   const [onDutyToast, setOnDutyToast] = useState<string | null>(null);
 
+  // Floating notification toast (latest unread)
+  const [visibleNotif, setVisibleNotif] = useState<{title: string; message: string} | null>(null);
+  const notifTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Watch for new notifications and show them as a floating toast
+  const prevNotifCount = React.useRef(state.notifications.length);
+  useEffect(() => {
+    const current = state.notifications.length;
+    if (current > prevNotifCount.current) {
+      const latest = state.notifications[0];
+      if (latest) {
+        setVisibleNotif({ title: latest.title, message: latest.message });
+        if (notifTimerRef.current) clearTimeout(notifTimerRef.current);
+        notifTimerRef.current = setTimeout(() => setVisibleNotif(null), 5000);
+      }
+    }
+    prevNotifCount.current = current;
+  }, [state.notifications]);
+
   // Problems List
   const problems = [
     { id: 'Battery problem', label: 'Battery problem', icon: Battery, desc: 'Jump start or replacement' },
@@ -1119,6 +1138,35 @@ export function DriverApp({
           <span>98%</span>
         </div>
       </div>
+
+      {/* ── FLOATING NOTIFICATION TOAST ── */}
+      <AnimatePresence>
+        {visibleNotif && (
+          <motion.div
+            initial={{ y: -80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="absolute top-10 inset-x-3 z-50"
+          >
+            <div className="bg-navy-900 border border-white/10 rounded-2xl px-4 py-3 flex items-start gap-3 shadow-2xl">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Bell size={14} className="text-orange-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-extrabold text-white leading-tight">{visibleNotif.title}</p>
+                <p className="text-[10px] text-slate-300 mt-0.5 leading-snug line-clamp-2">{visibleNotif.message}</p>
+              </div>
+              <button
+                onClick={() => setVisibleNotif(null)}
+                className="text-slate-500 hover:text-white shrink-0 mt-0.5"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Screen Content Wrapper with Status Bar padding */}
       <div className="flex-1 pt-8 overflow-hidden relative">

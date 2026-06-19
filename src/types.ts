@@ -113,5 +113,6 @@ export interface AppState {
   garages: Garage[];
   mechanics: Mechanic[];
   chatHistory: ChatMessage[];
-  notifications: AppNotification[];
+  notifications: AppNotification[];        // driver-facing
+  garageNotifications: AppNotification[];  // garage-facing
 }

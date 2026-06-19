@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldCheck, AlertTriangle, MapPin, Check, X, Wrench, Clock, Star,
-  Plus, Users, History, MessageSquare
+  Plus, Users, History, MessageSquare, Bell
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AppState, Garage, Mechanic } from '../../types';
 import logo from '../../Logo.png';
 
@@ -35,6 +36,24 @@ export function GarageDashboard({
   const [isEditingHours, setIsEditingHours] = useState(false);
   const [towDispatched, setTowDispatched] = useState(false);
 
+  // Floating notification toast for garage
+  const [garageNotif, setGarageNotif] = useState<{title: string; message: string} | null>(null);
+  const notifTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevNotifCount = useRef(state.garageNotifications.length);
+
+  useEffect(() => {
+    const current = state.garageNotifications.length;
+    if (current > prevNotifCount.current) {
+      const latest = state.garageNotifications[0];
+      if (latest) {
+        setGarageNotif({ title: latest.title, message: latest.message });
+        if (notifTimer.current) clearTimeout(notifTimer.current);
+        notifTimer.current = setTimeout(() => setGarageNotif(null), 6000);
+      }
+    }
+    prevNotifCount.current = current;
+  }, [state.garageNotifications]);
+
   const garageMechanics = state.mechanics.filter((m) => m.garageId === activeGarage.id);
   const activeReq =
     state.driverRequest && state.driverRequest.garage?.id === activeGarage.id
@@ -49,7 +68,37 @@ export function GarageDashboard({
   ] as const;
 
   return (
-    <div className="h-full bg-slate-900 text-white flex flex-col overflow-hidden">
+    <div className="h-full bg-slate-900 text-white flex flex-col overflow-hidden relative">
+
+      {/* ── FLOATING NOTIFICATION TOAST ── */}
+      <AnimatePresence>
+        {garageNotif && (
+          <motion.div
+            initial={{ y: -80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="absolute top-12 inset-x-3 z-50"
+          >
+            <div className="bg-slate-950 border border-orange-500/30 rounded-2xl px-4 py-3 flex items-start gap-3 shadow-2xl">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Bell size={14} className="text-orange-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-extrabold text-white leading-tight">{garageNotif.title}</p>
+                <p className="text-[10px] text-slate-300 mt-0.5 leading-snug line-clamp-3">{garageNotif.message}</p>
+              </div>
+              <button
+                onClick={() => setGarageNotif(null)}
+                className="text-slate-500 hover:text-white shrink-0 mt-0.5"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── HEADER ── */}
       <div className="bg-slate-950 px-4 pt-9 pb-3 flex items-center justify-between border-b border-slate-800 shrink-0">
         <div className="flex items-center gap-2.5">

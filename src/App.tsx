@@ -21,6 +21,7 @@ export function App() {
   const [registeredHistory, setRegisteredHistory] = useState<EmergencyRequest[]>(initialHistory);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [notifications, setNotifications] = useState<AppNotification[]>(initialNotifications);
+  const [garageNotifications, setGarageNotifications] = useState<AppNotification[]>([]);
   
   // Navigation & Viewport State
   const [currentScreen, setCurrentScreen] = useState<AppState['currentScreen']>('Splash');
@@ -46,6 +47,7 @@ export function App() {
     setRegisteredHistory(initialHistory);
     setChatHistory([]);
     setNotifications(initialNotifications);
+    setGarageNotifications([]);
     setCurrentScreen('Home');
     setIsRegisteredMode(false);
     setLastCompletedRequest(null);
@@ -90,11 +92,16 @@ export function App() {
       };
     });
     setCurrentScreen('Tracking');
-    
-    // Alert Notification
-    addNotification(
-      'SOS Dispatch Sent',
-      `Your emergency call has been sent to ${garage.name}. Waiting for response...`
+
+    // DRIVER: confirmation their SOS was sent
+    notifyDriver(
+      '📡 Emergency Request Sent',
+      `Your roadside assistance request has been dispatched to ${garage.name}. Please stay with your vehicle — their team is reviewing your case now.`
+    );
+    // GARAGE: incoming emergency alert
+    notifyGarage(
+      '🚨 Incoming Emergency Request',
+      `You have received an emergency call from driver ${activeDriver.name} (${activeDriver.vehicle.model} · ${activeDriver.vehicle.plate}). Reported problem: "${driverRequest?.problemType ?? 'Emergency'}". Driver is waiting at Kigali, Kiyovu — KN 3 Rd. Please accept or decline promptly.`
     );
   };
 
@@ -102,15 +109,28 @@ export function App() {
   const handleAcceptRequest = () => {
     if (!driverRequest) return;
     setDriverRequest(prev => prev ? { ...prev, status: 'accepted' } : null);
-    addNotification('SOS Request Accepted', `${driverRequest.garage?.name} accepted your request. Assigning mechanic.`);
+    notifyDriver(
+      '✅ Request Accepted',
+      `Great news! ${driverRequest.garage?.name} has accepted your emergency request and is now assigning a mechanic to assist you. Hold tight.`
+    );
+    notifyGarage(
+      '✅ Request Accepted — Assign a Mechanic',
+      `You have accepted the emergency call from ${driverRequest.driver.name}. Please assign an available mechanic to this job immediately so they can head to the driver's location.`
+    );
   };
 
   // 4. Garage Declines Request
   const handleDeclineRequest = () => {
     if (!driverRequest) return;
-    // Mark request as declined so driver sees the feedback screen
     setDriverRequest(prev => prev ? { ...prev, status: 'declined' } : null);
-    addNotification('SOS Request Declined', `${driverRequest.garage?.name} was unable to take your call. Please select another garage.`);
+    notifyDriver(
+      '❌ Request Declined',
+      `Unfortunately, ${driverRequest.garage?.name} is unable to take your call at this time. Please select another available garage nearby — help is still on the way.`
+    );
+    notifyGarage(
+      '❌ Request Declined',
+      `You have declined the emergency request from ${driverRequest.driver.name}. The driver has been notified and redirected to another garage.`
+    );
   };
 
   // 4b. Driver dismisses declined screen → clear and go home
@@ -135,7 +155,14 @@ export function App() {
       };
     });
 
-    addNotification('Mechanic Assigned', `${mechanic.name} is assigned and reviewing vehicle notes.`);
+    notifyDriver(
+      '👨‍🔧 Mechanic Assigned',
+      `${mechanic.name} has been assigned to your case by ${driverRequest.garage?.name}. He is reviewing your vehicle details and will be heading to your location shortly.`
+    );
+    notifyGarage(
+      '👨‍🔧 Mechanic Dispatched',
+      `${mechanic.name} has been assigned to the emergency job for driver ${driverRequest.driver.name} (${driverRequest.driver.vehicle.model} · ${driverRequest.driver.vehicle.plate}). He is now reviewing the case details before heading out.`
+    );
   };
 
   // 6. Update Status (Mechanic Journey Progress)
@@ -163,18 +190,16 @@ export function App() {
       setDriverRequest(null);
       setCurrentScreen('Completion');
       
-      // Driver notification
-      addNotification('✅ SOS Resolved', 'Emergency assistance has been completed successfully. Please rate your experience.');
-
-      // Garage notification from mechanic
-      addNotification(
-        '🔧 Job Completed by Mechanic',
-        `${driverRequest.mechanic?.name} has submitted the service report for ${driverRequest.driver.name}'s ${driverRequest.driver.vehicle.model}. Problem: ${driverRequest.problemType}. Job ticket closed.`
+      // DRIVER notification
+      notifyDriver(
+        '✅ Service Completed',
+        `${driverRequest.mechanic?.name} from ${driverRequest.garage?.name} has successfully completed the roadside service on your ${driverRequest.driver.vehicle.model}. Please take a moment to rate your experience.`
       );
-
-      // Garage notification from driver side (queued — will show after review)
-      // This is stored so handleSubmitReview can fire it
-      setLastCompletedRequest(completedJob);
+      // GARAGE notification from mechanic
+      notifyGarage(
+        '🔧 Job Closed by Mechanic',
+        `${driverRequest.mechanic?.name} has submitted the service report and closed the job ticket for driver ${driverRequest.driver.name} (${driverRequest.driver.vehicle.model} · ${driverRequest.driver.vehicle.plate}). Problem resolved: ${driverRequest.problemType}. Mechanic is now available.`
+      );
 
     } else if (status === 'towing') {
       // Tow requested — keep the request alive, notify both driver and garage
@@ -183,25 +208,44 @@ export function App() {
       const mechName = driverRequest.mechanic?.name ?? 'The mechanic';
       const garageName = driverRequest.garage?.name ?? 'the garage';
 
-      // Driver notification
-      addNotification(
+      notifyDriver(
         '🚛 Tow Truck Dispatched',
-        `${mechName} determined your vehicle needs workshop repair. A tow truck from ${garageName} is on the way to your location.`
+        `${mechName} has assessed your vehicle and determined that it requires workshop repair — it cannot be fixed on-site. A tow truck from ${garageName} is being dispatched to your location. Please remain with your vehicle.`
       );
-      // Garage notification (goes into the same shared notification feed — garage sees it in their portal)
-      addNotification(
+      notifyGarage(
         '🚛 Tow Required — Action Needed',
-        `${mechName} has requested a tow truck for driver ${driverRequest.driver.name} (${driverRequest.driver.vehicle.model}). Vehicle cannot be fixed on-site. Please dispatch tow truck from yard.`
+        `${mechName} has reported that the vehicle belonging to driver ${driverRequest.driver.name} (${driverRequest.driver.vehicle.model} · ${driverRequest.driver.vehicle.plate}) cannot be repaired at the roadside. Please dispatch a tow truck from your yard to Kigali, Kiyovu — KN 3 Rd immediately.`
       );
 
     } else {
       setDriverRequest(prev => prev ? { ...prev, status } : null);
       if (status === 'en_route') {
-        addNotification('Mechanic Dispatched', `${driverRequest.mechanic?.name} is on the way to Kiyovu KN 3 Rd.`);
+        notifyDriver(
+          '🏃 Mechanic On the Way',
+          `${driverRequest.mechanic?.name} has started his journey and is now heading to your location at Kigali, Kiyovu — KN 3 Rd. Estimated arrival: ${driverRequest.garage?.eta ?? 'a few minutes'}.`
+        );
+        notifyGarage(
+          '🏃 Mechanic Departed',
+          `${driverRequest.mechanic?.name} has left the garage and is currently en route to assist driver ${driverRequest.driver.name} at KN 3 Rd.`
+        );
       } else if (status === 'arrived') {
-        addNotification('Mechanic Arrived', `${driverRequest.mechanic?.name} has arrived at your exact location.`);
+        notifyDriver(
+          '📍 Mechanic Has Arrived',
+          `${driverRequest.mechanic?.name} from ${driverRequest.garage?.name} has arrived at your exact location. Please step out and meet him so the assessment can begin.`
+        );
+        notifyGarage(
+          '📍 Mechanic Arrived at Location',
+          `${driverRequest.mechanic?.name} has arrived at driver ${driverRequest.driver.name}'s location on KN 3 Rd and is about to begin the vehicle assessment.`
+        );
       } else if (status === 'diagnosing') {
-        addNotification('Diagnostics Started', 'Technician is checking engine codes and diagnostic system.');
+        notifyDriver(
+          '🔍 Diagnostics in Progress',
+          `${driverRequest.mechanic?.name} is currently inspecting your ${driverRequest.driver.vehicle.model} and running a full diagnostic. You will be updated as soon as the assessment is complete.`
+        );
+        notifyGarage(
+          '🔍 Vehicle Diagnostics Started',
+          `${driverRequest.mechanic?.name} has begun diagnosing the vehicle of driver ${driverRequest.driver.name} (${driverRequest.driver.vehicle.model}). Problem reported: ${driverRequest.problemType}.`
+        );
       }
     }
   };
@@ -249,12 +293,16 @@ export function App() {
     setLastCompletedRequest(null);
     setCurrentScreen(isRegisteredMode ? 'RegisteredDashboard' : 'Home');
 
-    // Garage notification: driver submitted review
+    // GARAGE notification: driver submitted a review
     if (lastCompletedRequest) {
-      const stars = '⭐'.repeat(rating);
-      addNotification(
-        '⭐ Driver Review Received',
-        `${lastCompletedRequest.driver.name} rated the service ${rating}/5 ${stars}. "${review || 'No written review.'}" — Vehicle: ${lastCompletedRequest.driver.vehicle.model}`
+      const stars = '⭐'.repeat(Math.min(rating, 5));
+      notifyGarage(
+        `${stars} Driver Review Received`,
+        `Driver ${lastCompletedRequest.driver.name} has rated the completed service ${rating} out of 5 stars. Their feedback: "${review || 'No written comment.'}" — Vehicle: ${lastCompletedRequest.driver.vehicle.model} (${lastCompletedRequest.driver.vehicle.plate}).`
+      );
+      notifyDriver(
+        '🙏 Review Submitted',
+        `Thank you for your feedback! Your ${rating}-star review for ${lastCompletedRequest.garage?.name} has been submitted. We hope to see you again for future roadside needs.`
       );
     }
   };
@@ -282,17 +330,24 @@ export function App() {
     setCurrentScreen('RegisteredDashboard');
   };
 
-  // Helper notification adder
-  const addNotification = (title: string, message: string) => {
-    const newNotif: AppNotification = {
+  // Helper: add driver-facing notification
+  const notifyDriver = (title: string, message: string) => {
+    setNotifications(prev => [{
       id: String(Date.now()),
-      title,
-      message,
-      time: 'Just now',
-      read: false
-    };
-    setNotifications(prev => [newNotif, ...prev]);
+      title, message, time: 'Just now', read: false
+    }, ...prev]);
   };
+
+  // Helper: add garage-facing notification
+  const notifyGarage = (title: string, message: string) => {
+    setGarageNotifications(prev => [{
+      id: String(Date.now() + 1),
+      title, message, time: 'Just now', read: false
+    }, ...prev]);
+  };
+
+  // Legacy helper kept for SOS toggle
+  const addNotification = notifyDriver;
 
   const handleToggleSOS = (active: boolean) => {
     addNotification('Availability Status', `SOS incoming emergency desk toggled ${active ? 'ON' : 'OFF'}.`);
@@ -534,7 +589,8 @@ export function App() {
     garages,
     mechanics,
     chatHistory,
-    notifications
+    notifications,
+    garageNotifications
   };
 
   return (
